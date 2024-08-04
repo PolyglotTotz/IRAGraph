@@ -41,6 +41,12 @@
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
+        #valueAt65 {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -63,10 +69,10 @@
         </div>
     </div>
     <canvas id="savingsGraph" width="600" height="400"></canvas>
+    <div id="valueAt65"></div>
 
     <script>
         let chart;
-        const maxBalance = calculateSavings(7000, 0)[64].y; // Maximum possible balance
 
         function calculateSavings(contribution, childAge) {
             const interestRate = 0.085;
@@ -92,12 +98,16 @@
             const data = calculateSavings(contribution, childAge);
 
             chart.data.datasets[0].data = data;
-            chart.update('none');
+            const valueAt65 = data[data.length - 1].y;
+            document.getElementById('valueAt65').textContent = `Value at 65: $${valueAt65.toLocaleString()}`;
+
+            chart.update();
         }
 
         function initializeGraph() {
             const ctx = document.getElementById('savingsGraph').getContext('2d');
             const initialData = calculateSavings(7000, 1);
+            const valueAt65 = initialData[initialData.length - 1].y;
 
             chart = new Chart(ctx, {
                 type: 'line',
@@ -121,6 +131,9 @@
                         },
                         title: {
                             display: false
+                        },
+                        annotation: {
+                            annotations: {}
                         }
                     },
                     scales: {
@@ -146,11 +159,19 @@
                                 display: false
                             },
                             min: 0,
-                            max: maxBalance
+                            max: 14000000,
+                            ticks: {
+                                stepSize: 2000000,
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
                         }
                     }
                 }
             });
+
+            document.getElementById('valueAt65').textContent = `Value at 65: $${valueAt65.toLocaleString()}`;
         }
 
         initializeGraph();
