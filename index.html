@@ -1,180 +1,194 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>College Savings Calculator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.0.1"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        .controls {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        label {
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #555;
-        }
-        select, input {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.7);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            font-size: 16px;
-        }
-        #savingsGraph {
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        #valueAt65 {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+      .controls {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      label {
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #555;
+      }
+      select,
+      input {
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        font-size: 16px;
+      }
+      #savingsGraph {
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      #valueAt60 {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="controls">
-        <div class="control-group">
-            <label for="contribution">Yearly Contribution:</label>
-            <select id="contribution" onchange="updateGraph()">
-                <option value="1000">$1,000/year</option>
-                <option value="2000">$2,000/year</option>
-                <option value="3000">$3,000/year</option>
-                <option value="4000">$4,000/year</option>
-                <option value="5000">$5,000/year</option>
-                <option value="6000">$6,000/year</option>
-                <option value="7000" selected>$7,000/year</option>
-            </select>
-        </div>
-        <div class="control-group">
-            <label for="childAge">Child's Age:</label>
-            <input type="number" id="childAge" min="0" max="17" value="1" onchange="updateGraph()">
-        </div>
+      <div class="control-group">
+        <label for="contribution">Yearly Contribution:</label>
+        <select id="contribution" onchange="updateGraph()">
+          <option value="1000">$1,000/year</option>
+          <option value="2000">$2,000/year</option>
+          <option value="3000">$3,000/year</option>
+          <option value="4000">$4,000/year</option>
+          <option value="5000">$5,000/year</option>
+          <option value="6000">$6,000/year</option>
+          <option value="7000" selected>$7,000/year</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="childAge">Child's Age:</label>
+        <input
+          type="number"
+          id="childAge"
+          min="0"
+          max="17"
+          value="1"
+          onchange="updateGraph()"
+        />
+      </div>
     </div>
     <canvas id="savingsGraph" width="600" height="400"></canvas>
-    <div id="valueAt65"></div>
+    <div id="valueAt60"></div>
 
     <script>
-        let chart;
+      let chart;
 
-        function calculateSavings(contribution, childAge) {
-            const interestRate = 0.085;
-            const yearsUntil18 = 18 - childAge;
-            const totalYears = 65 - childAge;
-            let balance = 0;
-            let data = [];
+      function calculateSavings(contribution, childAge) {
+        const interestRate = 0.085;
+        const yearsUntil18 = 18 - childAge;
+        const totalYears = 60 - childAge;
+        let balance = 0;
+        let data = [];
 
-            for (let year = 0; year < totalYears; year++) {
-                if (year < yearsUntil18) {
-                    balance += contribution;
-                }
-                balance *= (1 + interestRate);
-                data.push({x: childAge + year, y: Math.round(balance)});
-            }
-
-            return data;
+        for (let year = 0; year < totalYears; year++) {
+          if (year < yearsUntil18) {
+            balance += contribution;
+          }
+          balance *= 1 + interestRate;
+          data.push({ x: childAge + year, y: Math.round(balance) });
         }
 
-        function updateGraph() {
-            const contribution = parseInt(document.getElementById('contribution').value);
-            const childAge = parseInt(document.getElementById('childAge').value);
-            const data = calculateSavings(contribution, childAge);
+        return data;
+      }
 
-            chart.data.datasets[0].data = data;
-            const valueAt65 = data[data.length - 1].y;
-            document.getElementById('valueAt65').textContent = `Value at 65: $${valueAt65.toLocaleString()}`;
+      function updateGraph() {
+        const contribution = parseInt(
+          document.getElementById("contribution").value,
+        );
+        const childAge = parseInt(document.getElementById("childAge").value);
+        const data = calculateSavings(contribution, childAge);
 
-            chart.update();
-        }
+        chart.data.datasets[0].data = data;
+        const valueAt60 = data[data.length - 1].y;
+        document.getElementById("valueAt60").textContent =
+          `Value at 60: $${valueAt60.toLocaleString()}`;
 
-        function initializeGraph() {
-            const ctx = document.getElementById('savingsGraph').getContext('2d');
-            const initialData = calculateSavings(7000, 1);
-            const valueAt65 = initialData[initialData.length - 1].y;
+        chart.update();
+      }
 
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    datasets: [{
-                        data: initialData,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1,
-                        pointRadius: 0
-                    }]
+      function initializeGraph() {
+        const ctx = document.getElementById("savingsGraph").getContext("2d");
+        const initialData = calculateSavings(7000, 1);
+        const valueAt60 = initialData[initialData.length - 1].y;
+
+        chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            datasets: [
+              {
+                data: initialData,
+                borderColor: "rgb(75, 192, 192)",
+                tension: 0.1,
+                pointRadius: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            animation: {
+              duration: 1000,
+              easing: "easeInOutQuart",
+            },
+            plugins: {
+              legend: {
+                display: false,
+              },
+              title: {
+                display: false,
+              },
+              annotation: {
+                annotations: {},
+              },
+            },
+            scales: {
+              x: {
+                type: "linear",
+                position: "bottom",
+                title: {
+                  display: true,
+                  text: "Age",
                 },
-                options: {
-                    responsive: true,
-                    animation: {
-                        duration: 1000,
-                        easing: 'easeInOutQuart'
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        title: {
-                            display: false
-                        },
-                        annotation: {
-                            annotations: {}
-                        }
-                    },
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            position: 'bottom',
-                            title: {
-                                display: true,
-                                text: 'Age'
-                            },
-                            grid: {
-                                display: false
-                            },
-                            min: 0,
-                            max: 65
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Balance ($)'
-                            },
-                            grid: {
-                                display: false
-                            },
-                            min: 0,
-                            max: 14000000,
-                            ticks: {
-                                stepSize: 2000000,
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+                grid: {
+                  display: false,
+                },
+                min: 0,
+                max: 60,
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "Balance ($)",
+                },
+                grid: {
+                  display: false,
+                },
+                min: 0,
+                max: 10000000,
+                ticks: {
+                  stepSize: 2000000,
+                  callback: function (value) {
+                    return "$" + value.toLocaleString();
+                  },
+                },
+              },
+            },
+          },
+        });
 
-            document.getElementById('valueAt65').textContent = `Value at 65: $${valueAt65.toLocaleString()}`;
-        }
+        document.getElementById("valueAt60").textContent =
+          `Value at 60: $${valueAt60.toLocaleString()}`;
+      }
 
-        initializeGraph();
+      initializeGraph();
     </script>
-</body>
+  </body>
 </html>
